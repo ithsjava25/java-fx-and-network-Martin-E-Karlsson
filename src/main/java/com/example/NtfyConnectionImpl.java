@@ -22,10 +22,14 @@ public class NtfyConnectionImpl implements NtfyConnection {
         hostName = Objects.requireNonNull(dotenv.get("HOST_NAME"));
     }
 
+    public NtfyConnectionImpl(String hostName) {
+        this.hostName = hostName;
+    }
+
     @Override
     public boolean send(String message) {
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString("Hello World 🐼"))
+                .POST(HttpRequest.BodyPublishers.ofString(message))
                 .header("Cache", "no")
                 .uri(URI.create(hostName + "/mytopic"))
                 .build();
