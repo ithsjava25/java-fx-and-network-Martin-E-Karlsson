@@ -2,6 +2,8 @@ package com.example;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import tools.jackson.databind.ObjectMapper;
@@ -17,20 +19,37 @@ import java.util.Objects;
  * Model layer: encapsulates application data and business logic.
  */
 public class HelloModel {
+    private final NtfyConnection connection;
     private final String hostName;
     private final HttpClient http = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private final ObservableList<NtfyMessageDto> messages = FXCollections.observableArrayList();
 
-    public HelloModel() {
+    private final ObservableList<NtfyMessageDto> messages = FXCollections.observableArrayList();
+    private final StringProperty messagesToSend = new SimpleStringProperty();
+
+    public HelloModel(NtfyConnection connection) {
         Dotenv dotenv = Dotenv.load();
         hostName = Objects.requireNonNull(dotenv.get("HOST_NAME"));
         receiveMessage();
+        this.connection = connection;
     }
 
     public ObservableList<NtfyMessageDto> getMessages() {
         return messages;
+    }
+
+    public String getMessagesToSend() {
+        return messagesToSend.get();
+    }
+
+    public StringProperty messagesToSendProperty() {
+        return messagesToSend;
+    }
+
+
+    public void setMessageToSend(String message){
+        messagesToSend.set(message);
     }
 
     /**
@@ -43,16 +62,14 @@ public class HelloModel {
     }
 
     public void sendMessage() {
-        //Todo: Handles long blocking send requests to not freeze the JavaFX thread
-        //1. Use thread send message?
-        //2. Use async?
-
+//        connection.send(messagesToSend.get());
         HttpRequest httpRequest = HttpRequest.newBuilder().
                 POST(HttpRequest.BodyPublishers.ofString("Hello world 🐼"))
+                .header("Cache", "no")
                 .uri(URI.create(hostName + "/mytopic"))
                 .build();
         try {
-            var response = http.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            var response = http.send(httpRequest, HttpResponse.BodyHandlers.discarding());
         } catch (IOException e) {
             System.out.println("Error sending message");
         } catch (InterruptedException e) {

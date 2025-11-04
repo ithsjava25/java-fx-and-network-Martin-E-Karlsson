@@ -10,7 +10,7 @@ import javafx.scene.control.ListView;
  */
 public class HelloController {
 
-    private final HelloModel model = new HelloModel();
+    private final HelloModel model = new HelloModel(null);
     public ListView<NtfyMessageDto> messageView;
 
     @FXML
