@@ -2,13 +2,10 @@ package com.example;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.github.tomakehurst.wiremock.matching.ContentPattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 @WireMockTest
@@ -19,7 +16,7 @@ class HelloModelTest {
     void sendMessageCallsConnectionWithMessageToSend() {
         // Arrange Given
         var spy = new NtfyConnectionSpy();
-        var model = new HelloModel(spy);
+        var model = new ChatModel(spy);
         model.setMessageToSend("Hello World");
         // Act When
         model.sendMessage();
@@ -30,7 +27,7 @@ class HelloModelTest {
     @Test
     void sendMessageToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) {
         var con = new NtfyConnectionImpl("http://localhost:" + wmRuntimeInfo.getHttpPort());
-        var model = new HelloModel(con);
+        var model = new ChatModel(con);
         model.setMessageToSend(("Hello World"));
         stubFor(post("/mytopic").willReturn(ok()));
 
