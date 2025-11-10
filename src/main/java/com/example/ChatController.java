@@ -29,6 +29,7 @@ public class ChatController {
 
     public void sendMessage(ActionEvent actionEvent) {
         model.setMessageToSend(inputField.getText());
+        inputField.clear();
         model.sendMessage();
     }
 }
