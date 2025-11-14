@@ -4,17 +4,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ChatController">
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.ChatController">
     <VBox>
         <Label fx:id="messageLabel" text="MEK Chat" />
         <ListView fx:id="messageView" prefWidth="247.0" />
     </VBox>
-   <HBox alignment="BOTTOM_RIGHT" prefHeight="0.0" prefWidth="247.0">
-      <children>
-         <TextField fx:id="inputField"/>
-          <Button onAction="#sendMessage" text="Send message" />
-      </children>
-      <opaqueInsets>
-         <Insets />
-      </opaqueInsets></HBox>
+    <HBox alignment="BOTTOM_RIGHT" prefHeight="0.0" prefWidth="247.0">
+        <opaqueInsets>
+            <Insets/>
+        </opaqueInsets>
+        <TextField fx:id="inputField"/>
+        <Button onAction="#sendMessage" text="Send message"/>
+    </HBox>
 </VBox>

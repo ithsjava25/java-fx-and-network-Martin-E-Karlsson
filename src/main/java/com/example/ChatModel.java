@@ -25,10 +25,13 @@ public class ChatModel {
     private final String hostName;
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private String username;
+    private String topic;
+
     private final ObservableList<NtfyMessageDto> messages = FXCollections.observableArrayList();
     private final StringProperty messageToSend = new SimpleStringProperty();
 
-    public ChatModel(NtfyConnection connection) {
+    public ChatModel() {
 //        this.connection = connection;
         Dotenv dotenv = Dotenv.load();
         hostName = Objects.requireNonNull(dotenv.get("HOST_NAME"));
@@ -87,5 +90,21 @@ public class ChatModel {
                         .filter(message -> message.event().equals("message"))
                         .peek(System.out::println)
                         .forEach(m -> Platform.runLater(() -> messages.add(m))));
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getTopic() {
+        return topic;
     }
 }

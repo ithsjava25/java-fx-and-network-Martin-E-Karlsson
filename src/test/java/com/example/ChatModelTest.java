@@ -16,7 +16,7 @@ class ChatModelTest {
     void sendMessageCallsConnectionWithMessageToSend() {
         // Arrange Given
         var spy = new NtfyConnectionSpy();
-        var model = new ChatModel(spy);
+        var model = new ChatModel();
         model.setMessageToSend("Hello World");
         // Act When
         model.sendMessage();
@@ -27,7 +27,7 @@ class ChatModelTest {
     @Test
     void sendMessageToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) {
         var con = new NtfyConnectionImpl("http://localhost:" + wmRuntimeInfo.getHttpPort());
-        var model = new ChatModel(con);
+        var model = new ChatModel();
         model.setMessageToSend(("Hello World"));
         stubFor(post("/mytopic").willReturn(ok()));
 
