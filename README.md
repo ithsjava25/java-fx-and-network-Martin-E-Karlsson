@@ -1,10 +1,10 @@
-# JavaFX Chat App 💬
+**# JavaFX Chat App 💬
 
 A JavaFX-based chat client using [ntfy](https://docs.ntfy.sh/) for backend messaging.
 
 ## Features
 - MVC architecture
-- Send text messages to configurable topic via [JSON POST](https://docs.ntfy.sh/publish/#publish-as-json)
+- Send text messages to configurable topic via [JSON POST](https://docs.ntfy.sh/publish/#publish-as-json)**
 - Receive messages via [JSON stream](https://docs.ntfy.sh/subscribe/api/)
 - Backend URL via env variable (not committed)
 - Branch + PR workflow (no direct commits to `main`)

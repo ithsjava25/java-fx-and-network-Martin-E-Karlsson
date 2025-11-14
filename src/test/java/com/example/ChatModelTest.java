@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 @WireMockTest
-class HelloModelTest {
+class ChatModelTest {
 
     @Test
     @DisplayName("When calling send sendMessage it should call connection send")

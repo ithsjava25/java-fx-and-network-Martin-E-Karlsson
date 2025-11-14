@@ -31,7 +31,7 @@ public class NtfyConnectionImpl implements NtfyConnection {
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(message))
                 .header("Cache", "no")
-                .uri(URI.create(hostName + "/mytopic"))
+                .uri(URI.create(hostName + "/scrambledEggs"))
                 .build();
         try {
             //Todo: handle long blocking send requests to not freeze the JavaFX thread
@@ -51,7 +51,7 @@ public class NtfyConnectionImpl implements NtfyConnection {
     public void receive(Consumer<NtfyMessageDto> messageHandler) {
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create(hostName + "/mytopic/json"))
+                .uri(URI.create(hostName + "/scrambledEggs/json"))
                 .build();
 
         http.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofLines())
