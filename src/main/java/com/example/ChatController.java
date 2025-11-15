@@ -11,7 +11,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -23,6 +25,7 @@ import java.util.Objects;
 public class ChatController {
 
     public Button sendButton;
+    public Button sendImageButton;
     private ChatModel model;
     public ListView<NtfyMessageDto> messageView;
 
@@ -37,14 +40,28 @@ public class ChatController {
         try {
             Image sendIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/example/send.png")));
             ImageView imageView = new ImageView(sendIcon);
-            imageView.setFitHeight(20);
-            imageView.setFitWidth(20);
+            imageView.setFitHeight(30);
+            imageView.setFitWidth(30);
             imageView.setPreserveRatio(true);
 
             sendButton.setGraphic(imageView);
             sendButton.setText("");
         } catch (Exception e) {
-            sendButton.setText("Send");
+            sendButton.setText("Send Message");
+        }
+
+        try {
+            Image attachIcon = new Image(Objects.requireNonNull(getClass()
+                    .getResourceAsStream("/com/example/image.png")));
+            ImageView imageView = new ImageView(attachIcon);
+            imageView.setFitHeight(30);
+            imageView.setFitWidth(30);
+            imageView.setPreserveRatio(true);
+
+            sendImageButton.setGraphic(imageView);
+            sendImageButton.setText("");
+        } catch (Exception e) {
+            sendImageButton.setText("Send Image");
         }
 
         inputField.setOnKeyPressed(event -> {
@@ -138,5 +155,23 @@ public class ChatController {
             if (item.getMessage() != null) return item.getMessage();
         } catch (Exception ignored) {}
         return item.toString();
+    }
+
+    public void sendImage(ActionEvent actionEvent) {
+        if (model == null) return;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Image to Send");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(sendImageButton.getScene().getWindow());
+        if (selectedFile != null) {
+            String imagePath = selectedFile.toURI().toString();
+            model.setFileToSend(imagePath);
+            model.sendFile();
+        }
+
     }
 }

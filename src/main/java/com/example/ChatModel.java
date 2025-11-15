@@ -153,5 +153,13 @@ public class ChatModel {
                         .forEach(m -> Platform.runLater(() -> messages.add(m))));
     }
 
+    public void setFileToSend(String filePath) {
+        // Placeholder for setting file to send
+    }
+
+    public void sendFile() {
+        // Placeholder for sending file
+    }
+
 
 }
