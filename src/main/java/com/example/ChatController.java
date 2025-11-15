@@ -169,8 +169,8 @@ public class ChatController {
         File selectedFile = fileChooser.showOpenDialog(sendImageButton.getScene().getWindow());
         if (selectedFile != null) {
             String imagePath = selectedFile.toURI().toString();
-            model.setFileToSend(imagePath);
-            model.sendFile();
+            model.setImageToSend(imagePath);
+            model.sendImage();
         }
 
     }

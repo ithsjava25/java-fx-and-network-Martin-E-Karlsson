@@ -31,6 +31,7 @@ public class ChatModel {
 
     private final String username;
     private String topic;
+    private String imagePath;
 
     private final ObservableList<NtfyMessageDto> messages = FXCollections.observableArrayList();
     private final StringProperty messageToSend = new SimpleStringProperty();
@@ -153,12 +154,12 @@ public class ChatModel {
                         .forEach(m -> Platform.runLater(() -> messages.add(m))));
     }
 
-    public void setFileToSend(String filePath) {
-        // Placeholder for setting file to send
+    public void setImageToSend(String imagePath) {
+        this.imagePath = imagePath;
     }
 
-    public void sendFile() {
-        // Placeholder for sending file
+    public void sendImage() {
+        // TODO: Image sending logic
     }
 
 
