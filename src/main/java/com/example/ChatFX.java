@@ -15,7 +15,7 @@ public class ChatFX extends Application {
         FXMLLoader loginLoader = new FXMLLoader(ChatFX.class.getResource("login-view.fxml"));
         Parent loginRoot = loginLoader.load();
 
-        Scene loginScene = new Scene(loginRoot, 400, 300);
+        Scene loginScene = new Scene(loginRoot, 300, 140);
         stage.setTitle("Login");
         stage.setScene(loginScene);
         stage.show();

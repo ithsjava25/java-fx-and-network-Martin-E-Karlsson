@@ -24,12 +24,6 @@ public class LoginController {
 
     @FXML
     private void initialize() {
-        errorLabel.setText("");
-        loginButton.disableProperty().bind(
-                usernameField.textProperty().isEmpty()
-                        .or(topicField.textProperty().isEmpty())
-        );
-
         loginButton.setOnAction(event -> handleLogin());
     }
 
