@@ -1,13 +1,15 @@
 package com.example;
 
-//import tools.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import java.net.http.HttpClient;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -17,15 +19,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WireMockTest
 class ChatModelTest {
 
+    @BeforeAll
+    public static void initJavaFx() throws Exception {
+        // Starts JavaFX toolkit. If it is already started the try-statement is ignored.
+        try {
+            CountDownLatch latch = new CountDownLatch(1);
+            Platform.startup(latch::countDown);
+            // A brief delay to ensure startup completes
+            if (!latch.await(5, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("JavaFX Platform.startup timed out");
+            }
+        } catch (IllegalStateException ex) {
+            // The JavaFX platform is already running
+        }
+    }
+
     @Test
     @DisplayName("sendMessage posts JSON with message and user to the topic endpoint")
     void sendMessageToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) {
-        // Arrange
+        // Setup to create a ChatModel pointing to WireMock server
         String host = "http://localhost:" + wmRuntimeInfo.getHttpPort();
         HttpClient httpClient = HttpClient.newHttpClient();
         var model = new ChatModel("TestUser", "testTopic", httpClient, host, new ObjectMapper(), false);
 
-        // stub WireMock for POST (not strictly required to return anything special)
+        // stub WireMock for POST
         stubFor(post(urlEqualTo("/testTopic")).willReturn(ok()));
 
         // Act
@@ -42,12 +59,12 @@ class ChatModelTest {
     @Test
     @DisplayName("receiveMessage parses newline-delimited JSON lines and adds message events")
     void receiveMessageFromFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
-        // Arrange
+        // Setup to create a ChatModel pointing to WireMock server
         String host = "http://localhost:" + wmRuntimeInfo.getHttpPort();
         HttpClient httpClient = HttpClient.newHttpClient();
         var model = new ChatModel("TestUser", "testTopic", httpClient, host, new ObjectMapper(), false);
 
-        // Prepare two newline-separated JSON lines (as ntfy /json streaming might produce)
+        // Stub WireMock for GET with two JSON lines representing messages with inserted newlines
         String line1 = "{\"event\":\"message\",\"message\":\"Hello\",\"user\":\"Alice\"}";
         String line2 = "{\"event\":\"message\",\"message\":\"Second\",\"user\":\"Bob\"}";
 
@@ -57,14 +74,10 @@ class ChatModelTest {
         // Act: start receive and wait for completion
         var future = model.receiveMessage();
 
-        // Wait for the async chain to complete (timeout safety)
+        // Safely wait for async to finish
         future.get(2, TimeUnit.SECONDS);
 
-        // The receiveMessage result schedules additions on the JavaFX Application thread;
-        // in unit tests (without a JavaFX thread) the Platform.runLater() will enqueue tasks
-        // and they may not run. For simplicity in headless unit tests, you can either:
-        //  - Replace Platform.runLater(...) in ChatModel with direct addition when Platform.isFxApplicationThread() is false,
-        //  - Or check for presence with a short polling loop. Here we poll until items appear.
+        // Run delay loop to allow messages to be processed
         long start = System.currentTimeMillis();
         while (model.getMessages().size() < 2 && System.currentTimeMillis() - start < 2000) {
             Thread.sleep(50);
