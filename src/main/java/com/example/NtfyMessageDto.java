@@ -18,8 +18,6 @@ public record NtfyMessageDto(String id, long time, String event, String topic, S
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode node = mapper.readTree(message);
 
-//                String parsedMessage = node.has("message") ? node.get("message").asText() : message;
-//                String parsedUser = node.has("user") ? node.get("user").asText() : user;
                 String parsedUser;
                 String parsedMessage;
 

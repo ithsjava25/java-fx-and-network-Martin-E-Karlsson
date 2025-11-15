@@ -14,9 +14,6 @@ import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Objects;
 
 /**
@@ -35,6 +32,10 @@ public class ChatController {
     @FXML
     private Label messageLabel;
 
+    /**
+     * Initializes the controller class. This method is automatically called
+     * after the fxml file has been loaded. If images for buttons are not found, fallback to text.
+     */
     @FXML
     private void initialize() {
         try {
@@ -71,6 +72,11 @@ public class ChatController {
         });
     }
 
+    /**
+     * Binds the model to the controller and sets up data bindings.
+     * Also, dynamically updates the message view cell factory to format messages.
+     * @param model The ChatModel instance to bind.
+     */
     public void setModel(ChatModel model) {
         messageLabel.setText(model.getTopic());
         messageView.setItems(model.getMessages());
@@ -130,10 +136,17 @@ public class ChatController {
         }
     }
 
+    /**
+     * Handles the send message button action.
+     */
     public void sendMessage(ActionEvent actionEvent) {
         doSendMessage();
     }
 
+    /**
+     * Takes a call either from a send button activation or enter key press then sends the content
+     * of the input field to ChatModel.
+     */
     public void doSendMessage(){
         if (model == null) return;
         model.setMessageToSend(inputField.getText());
@@ -141,6 +154,11 @@ public class ChatController {
         model.sendMessage();
     }
 
+    /**
+     * Extracts the username from the message item.
+     * @param item The message item.
+     * @return The extracted sender name or "unknown".
+     */
     private String extractSender(NtfyMessageDto item) {
         if (item == null) return "unknown";
         try {
@@ -149,6 +167,11 @@ public class ChatController {
         return item.toString();
     }
 
+    /**
+     * Extracts the message body from the message item.
+     * @param item The message item.
+     * @return The extracted message body or the item's toString().
+     */
     private String extractBody(NtfyMessageDto item) {
         if (item == null) return "";
         try {
@@ -157,6 +180,11 @@ public class ChatController {
         return item.toString();
     }
 
+    /**
+     * Handles the send image button action.
+     * Opens a file chooser to select an image and sends it via the model.
+     * Not fully implemented feature.
+     */
     public void sendImage(ActionEvent actionEvent) {
         if (model == null) return;
 
