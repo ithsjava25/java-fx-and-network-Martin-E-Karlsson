@@ -3,9 +3,13 @@ package com.example;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record NtfyMessageDto(String id, long time, String event, String topic, String message) {
-//    @Override
-//    public String toString() {
-//        return message;
-//    }
+public record NtfyMessageDto(String id, long time, String event, String topic, String message, String user) {
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getUser() {
+        return user;
+    }
 }

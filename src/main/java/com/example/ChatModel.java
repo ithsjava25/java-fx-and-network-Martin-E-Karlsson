@@ -20,19 +20,19 @@ import java.util.Objects;
  */
 public class ChatModel {
 
-//    private final NtfyConnection connection;
     private final HttpClient http = HttpClient.newHttpClient();
     private final String hostName;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private String username;
+    private final String username;
     private String topic;
 
     private final ObservableList<NtfyMessageDto> messages = FXCollections.observableArrayList();
     private final StringProperty messageToSend = new SimpleStringProperty();
 
-    public ChatModel() {
-//        this.connection = connection;
+    public ChatModel(String username, String topic) {
+        this.username = username;
+        this.topic = topic;
         Dotenv dotenv = Dotenv.load();
         hostName = Objects.requireNonNull(dotenv.get("HOST_NAME"));
         receiveMessage();
@@ -40,6 +40,17 @@ public class ChatModel {
 
     public ObservableList<NtfyMessageDto> getMessages() {
         return messages;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     public String getMessageToSend() {
@@ -54,33 +65,34 @@ public class ChatModel {
         messageToSend.set(message);
     }
 
-    public boolean sendMessage() {
-//        connection.send(messageToSend.get());
+    public void sendMessage() {
         String message = messageToSend.get();
+        String jsonPayload = String.format(
+                "{ \"message\": \"%s\", \"user\": \"%s\" }",
+                message, username
+        );
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(message))
-                .header("Cache", "no")
-                .uri(URI.create(hostName + "/scrambledEggs"))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                .header("Content-Type", "application/json")
+//                .header("Cache", "no")
+                .uri(URI.create(hostName + "/" + topic))
                 .build();
         try {
             //Todo: handle long blocking send requests to not freeze the JavaFX thread
             //1. Use thread send message?
             //2. Use async?
             var response = http.send(httpRequest, HttpResponse.BodyHandlers.discarding());
-            return true;
         } catch (IOException e) {
             System.out.println("Error sending message");
         } catch (InterruptedException e) {
             System.out.println("Interrupted sending message");
         }
-        return false;
     }
 
     public void receiveMessage() {
-//        connection.receive(m -> Platform.runLater(() -> messages.add(m)));
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create(hostName + "/scrambledEggs/json"))
+                .uri(URI.create(hostName + "/" + topic + "/json"))
                 .build();
 
         http.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofLines())
@@ -92,19 +104,5 @@ public class ChatModel {
                         .forEach(m -> Platform.runLater(() -> messages.add(m))));
     }
 
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
 }

@@ -23,27 +23,24 @@ public class ChatFX extends Application {
         LoginController loginController = loginLoader.getController();
 
         loginController.setOnLoginSuccess(() -> {
+            String username = loginController.getUsername();
+            String topic = loginController.getTopic();
+            ChatModel model = new ChatModel(username, topic);
             try {
                 FXMLLoader chatLoader = new FXMLLoader(ChatFX.class.getResource("chat-view.fxml"));
                 Parent chatRoot = chatLoader.load();
+
+                ChatController chatController = chatLoader.getController();
+                chatController.setModel(model);
 
                 Scene chatScene = new Scene(chatRoot, 640, 480);
                 stage.setTitle("MEK Chat");
                 stage.setScene(chatScene);
                 stage.show();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Failed to load chat view: " + e.getMessage());
             }
         });
-
-
-
-//        FXMLLoader chatLoader = new FXMLLoader(ChatFX.class.getResource("chat-view.fxml"));
-//        Parent root = chatLoader.load();
-//        Scene scene = new Scene(root, 640, 480);
-//        stage.setTitle("MEK Chat");
-//        stage.setScene(scene);
-//        stage.show();
     }
 
     public static void main(String[] args) {

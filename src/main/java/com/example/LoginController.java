@@ -16,15 +16,18 @@ public class LoginController {
     @FXML
     public TextField topicField;
 
-    private final ChatModel model = new ChatModel();
+    @FXML
     public Button loginButton;
+
+    private String username;
+    private String topic;
 
     @FXML
     private void initialize() {
         errorLabel.setText("");
         loginButton.disableProperty().bind(
                 usernameField.textProperty().isEmpty()
-//                        .or(passwordField.textProperty().isEmpty())
+                        .or(topicField.textProperty().isEmpty())
         );
 
         loginButton.setOnAction(event -> handleLogin());
@@ -39,8 +42,8 @@ public class LoginController {
             errorLabel.setText("Username and Topic cannot be empty.");
         } else {
             errorLabel.setText("Logged in as " + username + " on topic " + topic);
-            model.setTopic(topic);
-            model.setUsername(username);
+            this.topic = topic;
+            this.username = username;
         }
         if (onLoginSuccess != null) {
             onLoginSuccess.run();
@@ -50,5 +53,13 @@ public class LoginController {
 
     public void setOnLoginSuccess(Runnable onLoginSuccess) {
         this.onLoginSuccess = onLoginSuccess;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getTopic() {
+        return topic;
     }
 }
