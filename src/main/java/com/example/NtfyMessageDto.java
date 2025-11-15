@@ -1,8 +1,8 @@
 package com.example;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,8 +18,22 @@ public record NtfyMessageDto(String id, long time, String event, String topic, S
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode node = mapper.readTree(message);
 
-                String parsedMessage = node.has("message") ? node.get("message").asText() : message;
-                String parsedUser = node.has("user") ? node.get("user").asText() : user;
+//                String parsedMessage = node.has("message") ? node.get("message").asText() : message;
+//                String parsedUser = node.has("user") ? node.get("user").asText() : user;
+                String parsedUser;
+                String parsedMessage;
+
+                if (node.has("message")) {
+                    parsedMessage = node.get("message").asText();
+                } else {
+                    parsedMessage = message;
+                }
+
+                if (node.has("user")) {
+                    parsedUser = node.get("user").asText();
+                } else {
+                    parsedUser = user;
+                }
 
                 message = parsedMessage;
                 user = parsedUser;
