@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -13,6 +15,7 @@ import javafx.scene.layout.Region;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Objects;
 
 /**
  * Controller layer: mediates between the view (FXML) and the model.
@@ -31,6 +34,19 @@ public class ChatController {
 
     @FXML
     private void initialize() {
+        try {
+            Image sendIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/example/send.png")));
+            ImageView imageView = new ImageView(sendIcon);
+            imageView.setFitHeight(20);
+            imageView.setFitWidth(20);
+            imageView.setPreserveRatio(true);
+
+            sendButton.setGraphic(imageView);
+            sendButton.setText("");
+        } catch (Exception e) {
+            sendButton.setText("Send");
+        }
+
         inputField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 doSendMessage();
@@ -49,7 +65,6 @@ public class ChatController {
         if (messageView != null) {
             messageView.setItems(model.getMessages());
 
-            // custom cell factory: username + bubble + alignment
             messageView.setCellFactory(lv -> new ListCell<>() {
                 @Override
                 protected void updateItem(NtfyMessageDto item, boolean empty) {

@@ -21,6 +21,7 @@
           <TextField fx:id="topicField" promptText="Enter topic name" HBox.hgrow="ALWAYS" />
       </children>
    </HBox>
+   <Label fx:id="errorLabel" textFill="red"/>
     <Button fx:id="loginButton" text="Login" />
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
