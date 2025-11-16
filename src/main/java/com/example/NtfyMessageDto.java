@@ -48,10 +48,4 @@ public record NtfyMessageDto(String id, long time, String event, String topic, S
     public String getUser() {
         return user;
     }
-
-    public LocalTime getTime() {
-        return LocalDateTime.ofInstant(
-                Instant.ofEpochSecond(time),
-                ZoneId.systemDefault()).toLocalTime().withSecond(0).withNano(0);
-    }
 }

@@ -14,6 +14,9 @@ import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Objects;
 
 /**
@@ -67,7 +70,7 @@ public class ChatController {
 
             sendImageButton.setGraphic(imageView);
             sendImageButton.setText("");
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             sendImageButton.setText("Send Image");
         }
 
@@ -88,53 +91,54 @@ public class ChatController {
         this.model = model;
         messageLabel.setText(model.getTopic() + " — " + model.getUsername());
 
-        if (messageView != null) {
-            messageView.setCellFactory(lv -> new ListCell<>() {
-                @Override
-                protected void updateItem(NtfyMessageDto item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                        return;
-                    }
-
-                    String sender = extractSender(item);
-                    String body = extractBody(item);
-
-                    Label userLabel = new Label(sender+ " " + item.getTime());
-                    userLabel.getStyleClass().add("message-user");
-                    userLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
-
-                    Label msgLabel = new Label(body);
-                    msgLabel.setWrapText(true);
-                    msgLabel.setMaxWidth(360);
-                    msgLabel.getStyleClass().add("message-bubble");
-                    msgLabel.setStyle("-fx-padding: 4; -fx-background-radius: 8; -fx-background-color: lightgray;");
-
-                    VBox bubbleVBox = new VBox(2, userLabel, msgLabel);
-
-                    Region spacer = new Region();
-                    HBox hbox = new HBox(4);
-                    HBox.setHgrow(spacer, Priority.ALWAYS);
-
-                    boolean isMe = model.getUsername() != null && model.getUsername().equals(sender);
-
-                    if (isMe) {
-                        msgLabel.setStyle("-fx-padding: 4; -fx-background-radius: 8; -fx-background-color: -fx-accent;" +
-                                " -fx-text-fill: white;");
-                        hbox.getChildren().addAll(spacer, bubbleVBox);
-                        hbox.setAlignment(Pos.CENTER_RIGHT);
-                    } else {
-                        hbox.getChildren().addAll(bubbleVBox, spacer);
-                        hbox.setAlignment(Pos.CENTER_LEFT);
-                    }
-
+        messageView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(NtfyMessageDto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
                     setText(null);
-                    setGraphic(hbox);
+                    setGraphic(null);
+                    return;
                 }
-            });
-        }
+
+                String sender = extractSender(item);
+                String body = extractBody(item);
+
+                Label userLabel = new Label(sender + " " + LocalDateTime.ofInstant(
+                        Instant.ofEpochSecond(item.time()),
+                        ZoneId.systemDefault()).toLocalTime().withSecond(0).withNano(0)
+                );
+                userLabel.getStyleClass().add("message-user");
+                userLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+
+                Label msgLabel = new Label(body);
+                msgLabel.setWrapText(true);
+                msgLabel.setMaxWidth(360);
+                msgLabel.getStyleClass().add("message-bubble");
+                msgLabel.setStyle("-fx-padding: 4; -fx-background-radius: 8; -fx-background-color: lightgray;");
+
+                VBox bubbleVBox = new VBox(2, userLabel, msgLabel);
+
+                Region spacer = new Region();
+                HBox hbox = new HBox(4);
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                boolean isMe = model.getUsername() != null && model.getUsername().equals(sender);
+
+                if (isMe) {
+                    msgLabel.setStyle("-fx-padding: 4; -fx-background-radius: 8; -fx-background-color: -fx-accent;" +
+                            " -fx-text-fill: white;");
+                    hbox.getChildren().addAll(spacer, bubbleVBox);
+                    hbox.setAlignment(Pos.CENTER_RIGHT);
+                } else {
+                    hbox.getChildren().addAll(bubbleVBox, spacer);
+                    hbox.setAlignment(Pos.CENTER_LEFT);
+                }
+
+                setText(null);
+                setGraphic(hbox);
+            }
+        });
     }
 
     /**
@@ -161,11 +165,8 @@ public class ChatController {
      * @return The extracted sender name or "unknown".
      */
     private String extractSender(NtfyMessageDto item) {
-        if (item == null) return "unknown";
-        try {
-            if (item.getUser() != null) return (item.getUser());
-        } catch (Exception ignored) {}
-        return item.toString();
+        String user = item.getUser();
+        return user != null ? user : "unknown";
     }
 
     /**
@@ -174,11 +175,8 @@ public class ChatController {
      * @return The extracted message body or the item's toString().
      */
     private String extractBody(NtfyMessageDto item) {
-        if (item == null) return "";
-        try {
-            if (item.getMessage() != null) return item.getMessage();
-        } catch (Exception ignored) {}
-        return item.toString();
+        String message = item.getMessage();
+        return message != null ? message : "";
     }
 
     /**

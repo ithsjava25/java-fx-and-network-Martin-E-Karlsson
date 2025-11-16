@@ -171,7 +171,7 @@ public class ChatModel {
      * @param s The input string.
      * @return The escaped string.
      */
-    private static String escapeForJson(String s) {
+    static String escapeForJson(String s) {
         if (s == null) return "";
         return s.replace("\\", "\\\\")
                 .replace("\"", "\\\"")

@@ -1,14 +1,12 @@
 package com.example;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import javafx.application.Platform;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -46,6 +44,27 @@ class ChatModelTest {
     HttpClient mockHttpClient;
 
     private ChatModel chatModelWithMock;
+
+    private static WireMockServer wireMock;
+
+    @BeforeAll
+    static void startWireMock() {
+        wireMock = new WireMockServer(WireMockConfiguration.options().dynamicPort());
+        wireMock.start();
+        // Make tests and application code use the WireMock base URL as HOST_NAME
+        System.setProperty("HOST_NAME", wireMock.baseUrl());
+    }
+
+    @AfterAll
+    static void stopWireMock() {
+        if (wireMock != null) wireMock.stop();
+        System.clearProperty("HOST_NAME");
+    }
+
+    @BeforeEach
+    void resetStubs() {
+        wireMock.resetAll();
+    }
 
     @BeforeAll
     public static void initJavaFx() throws Exception {
