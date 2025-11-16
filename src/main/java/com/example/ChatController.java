@@ -21,9 +21,15 @@ import java.util.Objects;
  */
 public class ChatController {
 
-    public Button sendButton;
-    public Button sendImageButton;
     private ChatModel model;
+
+    @FXML
+    public Button sendButton;
+
+    @FXML
+    public Button sendImageButton;
+
+    @FXML
     public ListView<NtfyMessageDto> messageView;
 
     @FXML
@@ -47,7 +53,7 @@ public class ChatController {
 
             sendButton.setGraphic(imageView);
             sendButton.setText("");
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             sendButton.setText("Send Message");
         }
 
@@ -78,16 +84,11 @@ public class ChatController {
      * @param model The ChatModel instance to bind.
      */
     public void setModel(ChatModel model) {
-        messageLabel.setText(model.getTopic());
         messageView.setItems(model.getMessages());
         this.model = model;
-        if (messageLabel != null) {
-            messageLabel.setText(model.getTopic() + " — " + model.getUsername());
-        }
+        messageLabel.setText(model.getTopic() + " — " + model.getUsername());
 
         if (messageView != null) {
-            messageView.setItems(model.getMessages());
-
             messageView.setCellFactory(lv -> new ListCell<>() {
                 @Override
                 protected void updateItem(NtfyMessageDto item, boolean empty) {

@@ -1,5 +1,6 @@
 package com.example;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.cdimascio.dotenv.Dotenv;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -36,6 +37,8 @@ public class ChatModel {
     private final ObservableList<NtfyMessageDto> messages = FXCollections.observableArrayList();
     private final StringProperty messageToSend = new SimpleStringProperty();
 
+    record MessagePayload(String message, String user) {}
+
     /**
      * Production-style constructor: reads HOST_NAME from .env and uses default HttpClient/ObjectMapper.
      * Does not start receive loop automatically (autoReceive=false). Call receiveMessage() to start.
@@ -43,8 +46,7 @@ public class ChatModel {
      * @param topic The topic to use provided by login client.
      */
     public ChatModel(String username, String topic) {
-        this(username, topic, HttpClient.newHttpClient(), loadHostFromDotenv(), new ObjectMapper(), false);
-        receiveMessage();
+        this(username, topic, HttpClient.newHttpClient(), loadHostFromDotenv(), new ObjectMapper(), true);
     }
 
     /**
@@ -78,8 +80,16 @@ public class ChatModel {
      * @return The host name as a string.
      */
     private static String loadHostFromDotenv() {
-        Dotenv dotenv = Dotenv.load();
-        return Objects.requireNonNull(dotenv.get("HOST_NAME"));
+        try {
+            Dotenv dotenv = Dotenv.load();
+            String host = dotenv.get("HOST_NAME");
+            if (host == null) {
+                    throw new IllegalStateException("HOST_NAME not found in .env file");
+                }
+            return host;
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load configuration from .env: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -117,19 +127,17 @@ public class ChatModel {
     /**
      * Send a message to the configured host/topic using the JSON payload format.
      */
-    public void sendMessage() {
+    public CompletableFuture<Object> sendMessage() {
         String message = messageToSend.get();
         if (message == null) message = "";
         String jsonPayload = formatJsonPayload(message);
         HttpRequest httpRequest = buildHttpRequest(jsonPayload);
-        try {
-            var response = http.send(httpRequest, HttpResponse.BodyHandlers.discarding());
-        } catch (IOException e) {
-            System.out.println("Error sending message: " + e.getMessage());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("Interrupted sending message");
-        }
+        return http.sendAsync(httpRequest, HttpResponse.BodyHandlers.discarding())
+                .thenApply(response -> null)
+                .exceptionally(ex -> {
+                    System.out.println("Error sending message: " + ex.getMessage());
+                    return null;
+                });
     }
 
 
@@ -165,7 +173,13 @@ public class ChatModel {
      */
     private static String escapeForJson(String s) {
         if (s == null) return "";
-        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f");
     }
 
     /**
@@ -179,7 +193,14 @@ public class ChatModel {
                 .uri(URI.create(hostName + "/" + topic + "/json"))
                 .build();
         return http.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofLines())
-                .thenAccept(response -> response.body()
+                .thenAccept(response -> {
+                    if (response.statusCode() != 200) {
+                        System.out.println("Unexpected response status: " + response.statusCode());
+                        return;
+                    }
+                    response.body()
+                        .map(s -> s == null ? "" : s.trim())
+                        .filter(s -> !s.isEmpty())
                         .map(s -> {
                             try {
                                 return mapper.readValue(s, NtfyMessageDto.class);
@@ -187,7 +208,8 @@ public class ChatModel {
                                 System.out.println("Failed to parse incoming line: " + e.getMessage());
                                 return null;
                             }
-                        })
+                        }
+                    )
                         .filter(Objects::nonNull)
                         .filter(message -> {
                             try {
@@ -196,8 +218,8 @@ public class ChatModel {
                                 return false;
                             }
                         })
-                        .peek(m -> System.out.println("Received message: " + m))
-                        .forEach(m -> Platform.runLater(() -> messages.add(m))));
+                .forEach(m -> Platform.runLater(() -> messages.add(m)));
+                });
     }
 
     /**

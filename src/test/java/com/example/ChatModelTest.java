@@ -21,10 +21,7 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Flow;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +57,10 @@ class ChatModelTest {
                 throw new IllegalStateException("JavaFX Platform.startup timed out");
             }
         } catch (IllegalStateException ex) {
-            // Platform already started; ignore
+            // Platform already started; ignore, but re-throw if it's not that case
+            if (!ex.getMessage().contains("Toolkit already initialized")) {
+                throw ex;
+            }
         }
     }
 
@@ -112,7 +112,8 @@ class ChatModelTest {
         // username from setUp is: user"name\with -> should be escaped in JSON
         String expectedMessageEscaped = "Hello \\\"world\\\" \\\\ test";
         String expectedUserEscaped = "user\\\"name\\\\with";
-        String expectedJson = String.format("{ \"message\": \"%s\", \"user\": \"%s\" }", expectedMessageEscaped, expectedUserEscaped);
+        String expectedJson = String.format("{ \"message\": \"%s\", \"user\": \"%s\" }",
+                expectedMessageEscaped, expectedUserEscaped);
 
         assertEquals(expectedJson, payload);
 
@@ -204,7 +205,7 @@ class ChatModelTest {
      */
     @Test
     @DisplayName("sendMessage posts JSON with message and user to the topic endpoint")
-    void sendMessageToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) {
+    void sendMessageToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws ExecutionException, InterruptedException, TimeoutException {
         // Setup ChatModel pointing to the WireMock server
         String host = "http://localhost:" + wmRuntimeInfo.getHttpPort();
         HttpClient httpClient = HttpClient.newHttpClient();
@@ -215,7 +216,8 @@ class ChatModelTest {
 
         // Act
         model.setMessageToSend("Hello World");
-        model.sendMessage();
+        var future = model.sendMessage();
+        future.get(2, TimeUnit.SECONDS);  // Wait for async completion
 
         // Assert: verify the JSON body contains the message and user fields
         verify(postRequestedFor(urlEqualTo("/testTopic"))
