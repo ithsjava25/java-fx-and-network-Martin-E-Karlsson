@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ChatController">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+    </padding>
+    <VBox>
+        <Label fx:id="messageLabel" text="MEK Chat" />
+        <ListView fx:id="messageView" prefWidth="247.0" />
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </padding>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT" prefHeight="0.0" prefWidth="247.0" spacing="3.0">
+        <opaqueInsets>
+            <Insets />
+        </opaqueInsets>
+        <TextField fx:id="inputField" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets></TextField>
+      <Button fx:id="sendImageButton" maxHeight="Infinity" onAction="#sendImage" text="Send Image" />
+        <Button fx:id="sendButton" maxHeight="Infinity" onAction="#sendMessage" text="Send Message" />
+      <padding>
+         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
+
+    </HBox>
+</VBox>

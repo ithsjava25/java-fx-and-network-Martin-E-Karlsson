@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="138.0" prefWidth="226.0" spacing="2.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.LoginController">
+    <Label text="Welcome to MEK Chat!" />
+   <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+      <children>
+          <Label text="Username" />
+          <TextField fx:id="usernameField" promptText="Enter your username" HBox.hgrow="ALWAYS" />
+      </children>
+   </HBox>
+   <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+      <children>
+          <Label text="Topic">
+            <padding>
+               <Insets left="25.0" />
+            </padding></Label>
+          <TextField fx:id="topicField" promptText="Enter topic name" HBox.hgrow="ALWAYS" />
+      </children>
+   </HBox>
+   <Label fx:id="errorLabel" textFill="red"/>
+    <Button fx:id="loginButton" text="Login" />
+    <padding>
+        <Insets bottom="20" left="20" right="20" top="20" />
+    </padding>
+</VBox>

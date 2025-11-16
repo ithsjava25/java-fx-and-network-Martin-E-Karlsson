@@ -1,2 +1,5 @@
 target/
 /.idea/
+.env
+/src/main/resources/com/example/send.png
+/src/main/resources/com/example/image.png
